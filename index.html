@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Noob search</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font: 16px Arial;
+        }
+
+        /*the container must be positioned relative:*/
+        .autocomplete {
+            position: relative;
+            display: inline-block;
+        }
+
+        input {
+            border: 1px solid transparent;
+            background-color: #f1f1f1;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        input[type=text] {
+            background-color: #f1f1f1;
+            width: 100%;
+        }
+
+        input[type=submit] {
+            background-color: DodgerBlue;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            /*position the autocomplete items to be the same width as the container:*/
+            top: 100%;
+            left: 0;
+            right: 0;
+        }
+
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #d4d4d4;
+        }
+
+        /*when hovering an item:*/
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+
+        /*when navigating through the items using the arrow keys:*/
+        .autocomplete-active {
+            background-color: DodgerBlue !important;
+            color: #ffffff;
+        }
+
+        .result a:first-child {
+            font-size: 20px;
+            text-decoration: none;
+            color: #1A0DAB;
+        }
+
+        .result a:first-child:visited {
+            color: #660099;
+        }
+
+        .result a:first-child:hover {
+            text-decoration: underline;
+        }
+
+        .result p:nth-child(2) { /*link*/
+            display: inline-block;
+            color: #006621;
+            font-size: 16px;
+        }
+
+        .result a:nth-child(3) { /*website title*/
+            display: inline-block;
+            text-decoration: none;
+            color: #777777;
+        }
+
+        .result a:nth-child(3):hover {
+            color: black;
+        }
+
+        .result p {
+            margin: 2px;
+        }
+
+        .result:nth-child(12) {
+            padding-bottom: 18px;
+            border-bottom: 1px solid #E4E4E4;
+        }
+
+        .result:nth-child(6) p:nth-child(2) { /*special case for 4th result as link displays inline with short title */
+            display: block;
+            /*margin-bottom: -13px;*/
+        }
+
+        .result:nth-child(6) p:nth-child(4) { /*fix line spacing for above special case */
+            margin-top: -13px;
+        }
+    </style>
+</head>
+<body>
+<!--Make sure the form has the autocomplete function switched off:-->
+<div style="padding: 20px">
+    <img src="logo.png" alt="">
+    <br>
+    <div class="autocomplete ui-widget" style="width:400px;">
+        <input id="myInput" type="text" name="myInput" placeholder="">
+    </div>
+    <input type="submit" id="submit" value="Go !">
+</div>
+
+<div id="container" style="padding: 20px;width: 800px">
+    <p id="count">
+    <p>
+    <br>
+    <div id="results"></div>
+</div>
+
+<script>
+    //setup auto completion for searchbar
+    const baseUrl = 'http://localhost:3001'
+    $('#myInput').autocomplete({
+        source: (req, res) => {
+            jQuery.get(baseUrl + '/suggest?q=' + req.term, (data) => {
+                res(data)
+            })
+        }
+    })
+
+    function showResult(result) {
+        let count = `@total records (@took milliseconds)`
+        let resultItem =
+            `<div class="result" style="padding-bottom: 20px">
+                <a href="@ref">@title</a>
+                <p>@score</p>
+                <p>@desc</p>
+            </div>`
+        count = count.replace('@total', result.hits.total.value).replace('@took', result.took)
+        $('#count').text(count)
+        let hits = result.hits.hits
+        for (let r of hits) {
+            let title = r.highlight.title ? r.highlight.title : r._source.title
+            let _resultItem = resultItem.replace('@title', title)
+            _resultItem = _resultItem.replace('@ref', `/detail?id=${r._id}`)
+
+            _resultItem = _resultItem.replace('@score', r._score)
+            let desc = r.highlight.description ? r.highlight.description : r._source.description
+            desc = desc || ''
+            desc = desc.length > 300 ? desc.slice(0, 300) + '...' : desc
+            _resultItem = _resultItem.replace('@desc', desc)
+            $('#results').append(_resultItem)
+        }
+    }
+
+    $('#submit').click(() => {
+        $('#results').empty()
+        let q = $('#myInput').val()
+        const baseUrl = 'http://localhost:3001'
+        $.get(baseUrl + '/search?q=' + q, (data) => {
+            let _result = JSON.parse(data)
+            showResult(_result)
+        })
+    })
+</script>
+</body>
+</html>
