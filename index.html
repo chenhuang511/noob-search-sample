@@ -158,16 +158,16 @@
                 <p>@score</p>
                 <p>@desc</p>
             </div>`
-        count = count.replace('@total', result.hits.total.value).replace('@took', result.took)
+        count = count.replace('@total', result.total).replace('@took', result.took)
         $('#count').text(count)
-        let hits = result.hits.hits
+        let hits = result.hits
         for (let r of hits) {
-            let title = r.highlight ? r.highlight.title ? r.highlight.title : r._source.title : r._source.title
+            let title = r.title || ''
             let _resultItem = resultItem.replace('@title', title)
             _resultItem = _resultItem.replace('@ref', `/detail?id=${r._id}`)
 
             _resultItem = _resultItem.replace('@score', r._score)
-            let desc = r.highlight ? r.highlight.description ? r.highlight.description : r._source.description : r._source.description
+            let desc = r.description
             desc = desc || ''
             desc = desc.length > 300 ? desc.slice(0, 300) + '...' : desc
             _resultItem = _resultItem.replace('@desc', desc)
