@@ -135,13 +135,13 @@
 <div id="container" style="padding: 20px;width: 800px">
     <p id="count">
     <p>
-    <br>
+        <br>
     <div id="results"></div>
 </div>
 
 <script>
     //setup auto completion for searchbar
-    const baseUrl = 'http://localhost:3001'
+    const baseUrl = 'http://172.16.1.107:3001'
     $('#myInput').autocomplete({
         source: (req, res) => {
             jQuery.get(baseUrl + '/suggest?q=' + req.term, (data) => {
@@ -178,7 +178,7 @@
     $('#submit').click(() => {
         $('#results').empty()
         let q = $('#myInput').val()
-        const baseUrl = 'http://localhost:3001'
+        const baseUrl = 'http://172.16.1.107:3001'
         $.get(baseUrl + '/search?q=' + q, (data) => {
             let _result = JSON.parse(data)
             showResult(_result)

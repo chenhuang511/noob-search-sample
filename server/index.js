@@ -41,50 +41,21 @@ app.get('/detail', async (req, res) => {
 
 const suggest = async (q) => {
     const result = await client.search({
-        index: 'books',
-        suggest: {
-            text: q,
-            suggest_1: {
-                completion: {
-                    field: 'title.completion',
-                    fuzzy: {
-                        fuzziness: 'AUTO'
-                    },
-                    size: 3
-                }
-            },
-            suggest_2: {
-                completion: {
-                    field: 'author.completion',
-                    fuzzy: {
-                        fuzziness: 'AUTO'
-                    },
-                    size: 3
-                }
-            },
-            suggest_3: {
-                completion: {
-                    field: 'publisher.completion',
-                    fuzzy: {
-                        fuzziness: 'AUTO'
-                    },
-                    size: 3
+        index: 'wiki',
+        query: {
+            match: {
+                'title.ngram': {
+                    query: q,
+                    fuzziness: 'AUTO'
                 }
             }
-        }
+        },
+        _source: false,
+        fields: [
+            'title'
+        ]
     })
-    let suggests = result.suggest
-    let texts = []
-    let suggest1 = suggests.suggest_1.pop().options
-    for (let s of suggest1) texts.push(s.text)
-
-    let suggest2 = suggests.suggest_2.pop().options
-    for (let s of suggest2) texts.push(s.text)
-
-    let suggest3 = suggests.suggest_3.pop().options
-    for (let s of suggest3) texts.push(s.text)
-
-    return texts
+    return result.hits.hits.map(h => h.fields['title'].pop().trim())
 }
 
 const search = async (q) => {
@@ -93,7 +64,7 @@ const search = async (q) => {
     let slop = qLen > 3 ? 2 : 1
 
     const result = await client.search({
-        index: 'books',
+        index: 'wiki',
         track_total_hits: true,
         query: {
             bool: {
@@ -101,7 +72,7 @@ const search = async (q) => {
                     {
                         multi_match: {
                             query: q,
-                            fields: ['title^3', 'author^2', 'publisher'],
+                            fields: ['title', 'summary'],
                             fuzziness: 'AUTO'
                         }
                     },
@@ -120,14 +91,6 @@ const search = async (q) => {
                                 slop: slop
                             }
                         }
-                    },
-                    {
-                        match_phrase: {
-                            publisher: {
-                                query: q,
-                                slop: slop
-                            }
-                        }
                     }
                 ]
             }
@@ -138,11 +101,7 @@ const search = async (q) => {
                     pre_tags: '<strong>',
                     post_tags: '</strong>'
                 },
-                author: {
-                    pre_tags: '<strong>',
-                    post_tags: '</strong>'
-                },
-                publisher: {
+                summary: {
                     pre_tags: '<strong>',
                     post_tags: '</strong>'
                 }
@@ -157,9 +116,7 @@ const search = async (q) => {
         let _id = h._id
         let _score = h._score
         let title = h.highlight && h.highlight.title ? h.highlight.title.pop() : h._source.title
-        let author = h.highlight && h.highlight.author ? h.highlight.author.pop() : h._source.author
-        let publisher = h.highlight && h.highlight.publisher ? h.highlight.publisher.pop() : h._source.publisher
-        let description = `Author: ${author} <br>Publisher: ${publisher} <br>Publish year: ${h._source.publish_year} <br>ISBN: ${h._source.isbn}`
+        let description = h._source.summary
         hits.push({_id, _score, title, description})
     }
 
@@ -168,7 +125,7 @@ const search = async (q) => {
 
 const detail = async (q) => {
     return await client.get({
-        index: 'books',
+        index: 'wiki',
         id: q
     })
 }
