@@ -72,21 +72,13 @@ const search = async (q) => {
                     {
                         multi_match: {
                             query: q,
-                            fields: ['title', 'summary'],
+                            fields: ['title^2', 'summary'],
                             fuzziness: 'AUTO'
                         }
                     },
                     {
                         match_phrase: {
                             title: {
-                                query: q,
-                                slop: slop
-                            }
-                        }
-                    },
-                    {
-                        match_phrase: {
-                            author: {
                                 query: q,
                                 slop: slop
                             }

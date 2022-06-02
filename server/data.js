@@ -16,15 +16,8 @@ const indexDoc = async (doc) => {
 
 const run = async () => {
     const data = fs.readFileSync(dataPath, 'utf8')
-    // console.log(data.substring(0, 1000))
     const parsed = data.trim().split('\r\n\r\n')
     let report = 0
-    // console.log(parsed.length)
-    // for (let item of parsed) {
-    //     report++
-    //     if (report < 5)
-    //         console.log(report + ' ' + item)
-    // }
     for (let item of parsed) {
         try {
             const _index = item.indexOf('\n')
