@@ -1,3 +1,6 @@
+## noob-search-sample
+This is sample app that demonstrate how elasticsearch is used for searching like Google.
+
 ## ElasticStack Setup
 * ElasticSearch 7.16.3
 * Kibana 7.16.3
