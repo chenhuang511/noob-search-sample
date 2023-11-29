@@ -5,11 +5,11 @@ This is sample app that demonstrate how elasticsearch is used for searching like
 * ElasticSearch 7.16.3
 * Kibana 7.16.3
 * Logstash 7.16.3
-* Installed VM (Virtual box - CentOS 7): [https://drive.google.com/file/d/1P1H0Tsb4i29t2TGxg4CXsgWvm-Bvh_YA/view?usp=sharing]()
+* Installed VM (Virtual box - CentOS 7): [https://drive.google.com/file/d/1P1H0Tsb4i29t2TGxg4CXsgWvm-Bvh_YA/view?usp=sharing](https://drive.google.com/file/d/1P1H0Tsb4i29t2TGxg4CXsgWvm-Bvh_YA/view?usp=sharing)
 
 ## Dataset
 
-* 1.203.165 Vietnamese Wikipedia articles [https://drive.google.com/file/d/1Amh8Tp3rM0kdThJ0Idd88FlGRmuwaK6o/view]()
+* 1.203.165 Vietnamese Wikipedia articles [https://drive.google.com/file/d/1Amh8Tp3rM0kdThJ0Idd88FlGRmuwaK6o/view](https://drive.google.com/file/d/1Amh8Tp3rM0kdThJ0Idd88FlGRmuwaK6o/view)
 * Size: 780 MB
 
 ## Index mapping
